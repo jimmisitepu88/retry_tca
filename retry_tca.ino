@@ -7,7 +7,8 @@
 #include "TCA9555.h"
 TCA9555 TCA1(0x20);
 TCA9555 TCA2(0x21);
-byte pin_tca[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+
+
 
 unsigned long cur_time, old_time;
 
@@ -20,11 +21,15 @@ void setup() {
   Wire.begin();
   TCA1.begin();
   TCA2.begin();
-  for (int i = 0; i < sizeof(pin_tca); i++) {
+  for (int i = 0; i < sizeof(pin_tca1); i++) {
     Serial.print(i);
     Serial.print(",");
-    TCA1.pinMode1(pin_tca[i], INPUT);
-    TCA2.pinMode1(pin_tca[i], INPUT);
+    TCA1.pinMode1(pin_tca1[i], INPUT);
+  }
+  for (int i = 0; i < sizeof(pin_tca2); i++) {
+    Serial.print(i);
+    Serial.print(",");
+    TCA1.pinMode1(pin_tca2[i], INPUT);
   }
 }
 
@@ -42,18 +47,14 @@ String genereteJsonData() {
   DynamicJsonDocument doc(512);
   JsonObject root = doc.to<JsonObject>();
 
-  get_input1();
-  get_input2();
-  String str_tca1 = String(data_tca1_port1, BIN) + String(data_tca1_port0, BIN);
-  String str_tca2 = String(data_tca2_port1, BIN) + String(data_tca2_port0, BIN);
-  str_tca1.toCharArray(dt_pin_tca1, str_tca1.length() + 1);
-  str_tca1.toCharArray(dt_pin_tca2, str_tca2.length() + 1);
-  for (int i = 0; i < 12; i++) {
-    root[String(i + 1)] = String(dt_pin_tca1[i]);
-  }
+  get_input1();  // di panggil utk baca tca1
+  get_input2();  // di panggil utk baca tca2
 
-  for (int i = 0; i < 12; i++) {
-    root[String(i + 13)] = String(dt_pin_tca2[i]);
+  for (int i = 0; i < sizeof(pin_tca1); i++) {
+    root[String(i + 1)] = TCA1.read1(pin_tca1[i]);
+  }
+  for (int i = 0; i < sizeof(pin_tca2); i++) {
+    root[String(i + 13)] = TCA2.read1(pin_tca2[i]);
   }
 
   serializeJson(root, jsonData);
