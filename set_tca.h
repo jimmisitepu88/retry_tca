@@ -14,8 +14,53 @@ byte addr_tca2 = 0x21;
 bool baca_input1(byte addr, bool port);
 bool baca_input2(byte addr, bool port);
 
+byte pin_tca1[] = {0, 1, 2, 3, 4, 5, 6, 7, 11, 10, 9, 8};
+byte pin_tca2[] = {7, 6, 5, 4, 3, 2, 1, 0, 8, 9, 10, 11};
+
 char dt_pin_tca1[16];
 char dt_pin_tca2[16];
+
+byte dt_tca1[16];
+byte dt_tca2[16];
+
+
+byte TCA1_read(byte pin) {
+  byte val, mask;
+  if (pin > 15) {
+    Serial.println("pin error");
+  }
+
+  if (pin > 7) {
+    pin -= 8;
+    val = data_tca1_port1;
+    mask = 1 << pin;
+
+  } else {
+    val = data_tca1_port0;
+    mask = 1 << pin;
+  }
+  if (val & mask) return HIGH;
+  return LOW;
+}
+
+byte TCA2_read(byte pin) {
+  byte val, mask;
+  if (pin > 15) {
+    Serial.println("pin error");
+  }
+
+  if (pin > 7) {
+    pin -= 8;
+    val = data_tca2_port1;
+    mask = 1 << pin;
+
+  } else {
+    val = data_tca2_port0;
+    mask = 1 << pin;
+  }
+  if (val & mask) return HIGH;
+  return LOW;
+}
 
 void get_input1() {
   byte _retry = 0;
